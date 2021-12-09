@@ -1,0 +1,47 @@
+{
+  "name": "vue-virtual-list",
+  "version": "1.0.0",
+  "description": " vue3 version virtual list, refer to  vue-virtual-scroll-list.",
+  "main": "dist/index.js",
+  "scripts": {
+    "lint": "eslint --fix src --ext .js",
+    "dev:docs": "cd example && npm run dev",
+    "build:docs": "cd example && npm run build && cp ../dist/index.js ../docs",
+    "build": "npm run lint && rollup --config ./scripts/rollup.production.js",
+    "dev": "rollup --config ./scripts/rollup.development.js --watch",
+    "test": "rm -rf ./coverage && jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uct8086/vue-virtual-list.git"
+  },
+  "keywords": [
+    "virtual-list",
+    "vue3"
+  ],
+  "author": "uct8086",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uct8086/vue-virtual-list/issues"
+  },
+  "homepage": "https://github.com/uct8086/vue-virtual-list#readme",
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/helpers": "^7.16.3",
+    "@babel/highlight": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "@vue/babel-plugin-jsx": "^1.1.1",
+    "eslint": "^8.4.1",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "eslint-plugin-standard": "^5.0.0",
+    "eslint-plugin-vue": "^8.2.0",
+    "gensync": "^1.0.0-beta.2",
+    "rollup": "^2.61.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "vue": "^3.2.24"
+  }
+}
