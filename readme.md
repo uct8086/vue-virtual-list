@@ -1,4 +1,4 @@
-# VirtualList 虚拟列表 v2
+# VirtualList 虚拟列表 vue3 版本
 
 当列表的数据量很大时，使用虚拟列表呈现内容。
 
@@ -8,6 +8,31 @@
 import VirtualList from 'vue-virtual-list-v3';
 
 app.use(VirtualList);
+```
+
+## 基本用法
+<br/>
+
+```html
+<div class="container">
+     <WVirtualListV2 class="list-dynamic scroll-touch"
+          :data-key="'id'"
+          :data-sources="items"
+          :estimate-size="80"
+          :item-class="'list-item-dynamic'"
+          ref="virtualList"
+        >
+        <template #={source}>
+            <div class="item-inner">
+                <div class="head">
+                    <span># {{ source.index }}</span>
+                    <span>{{ source.name }}</span>
+                </div>
+                <div class="desc">{{ source.desc }}</div>
+            </div>
+        </template>
+        </WVirtualListV2>
+</div>
 ```
 ## 虚拟列表属性和方法
 
