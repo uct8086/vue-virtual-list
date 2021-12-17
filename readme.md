@@ -15,7 +15,7 @@ app.use(VirtualList);
 
 ```html
 <div class="container">
-     <WVirtualListV2 class="list-dynamic scroll-touch"
+     <VirtualList class="list-dynamic scroll-touch"
           :data-key="'id'"
           :data-sources="items"
           :estimate-size="80"
@@ -31,7 +31,7 @@ app.use(VirtualList);
                 <div class="desc">{{ source.desc }}</div>
             </div>
         </template>
-        </WVirtualListV2>
+      </VirtualList>
 </div>
 ```
 ## 虚拟列表属性和方法
