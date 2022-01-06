@@ -1,5 +1,5 @@
 /**
- * props declaration for default, item component
+ * props declaration for default, item and slot component
  */
 
 export const VirtualProps = {
@@ -102,7 +102,7 @@ export const VirtualProps = {
     itemScopedSlots: {
         type: Object,
     },
-}
+};
 
 export const ItemProps = {
     index: {
@@ -118,7 +118,7 @@ export const ItemProps = {
         type: Boolean,
     },
     source: {
-        type: Object,
+        type: [Object, String, Number],
     },
     component: {
         type: [Object, Function],
@@ -135,4 +135,4 @@ export const ItemProps = {
     scopedSlots: {
         type: Object,
     },
-}
+};

@@ -4,10 +4,11 @@
 
 import { defineComponent, onMounted, ref, createVNode, h } from 'vue';
 import { ItemProps } from './props';
+// import useResize from '../_util/use/useResize';
 
 // wrapping for item
-export const VirtualListItem = defineComponent({
-    name: 'VirtualListItem',
+export const FVirtualListItem = defineComponent({
+    name: 'FVirtualListItem',
     props: ItemProps,
     setup (props, { attrs }) {
         const itemRef = ref();
@@ -23,12 +24,22 @@ export const VirtualListItem = defineComponent({
             dispatchSizeChange();
         });
 
+        // useResize(itemRef, dispatchSizeChange);
+
         return {
             itemRef,
         };
     },
     render () {
-        const { tag, extraProps = {}, index, source, scopedSlots = {}, uniqueKey, slotComponent } = this;
+        const {
+            tag,
+            extraProps = {},
+            index,
+            source,
+            scopedSlots = {},
+            uniqueKey,
+            slotComponent,
+        } = this;
 
         const _props = {
             ...extraProps,
@@ -40,7 +51,7 @@ export const VirtualListItem = defineComponent({
             tag,
             {
                 key: uniqueKey,
-                role: 'listitem',
+                role: 'listItem',
                 ref: (el) => {
                     if (el) this.itemRef = el;
                 },
