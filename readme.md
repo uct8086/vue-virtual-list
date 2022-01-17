@@ -34,6 +34,19 @@ app.use(VirtualList);
       </VirtualList>
 </div>
 ```
+items 数据示例：
+
+```json
+[
+  {
+    "index":1,
+    "name":"0.8952834111006784",
+    "id":"1$d9ec7a",
+    "desc":"html5",
+    "size":150
+  }
+]
+```
 ## 虚拟列表属性和方法
 
 ### 必须的属性
