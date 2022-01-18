@@ -11,7 +11,7 @@ import {
     ref,
     createVNode,
     computed,
-    cloneVNode,
+    h,
 } from 'vue';
 import Virtual from './virtual';
 import { VirtualListItem } from './listItem';
@@ -348,7 +348,6 @@ export default defineComponent({
             wrapTag,
             wrapClass,
             wrapStyle,
-            onScroll,
             fullHeight,
         } = this;
 
@@ -376,29 +375,33 @@ export default defineComponent({
             ? { position: 'relative', width: `${fullHeight}px` }
             : { position: 'relative', height: `${fullHeight}px` };
 
-        const tempVirtualVNode = createVNode(
-            rootTag,
-            {
-                style: rootStyle,
-                ref: (el) => {
-                    if (el) this.rootRef = el.parentElement;
+        return h(
+            'div', {
+                onScroll: (e) => {
+                    this.onScroll(e);
                 },
-                scroll: onScroll,
-            },
-            [
-                // 主列表
-                createVNode(
-                    wrapTag,
+            }, [
+                h(
+                    rootTag,
                     {
-                        class: wrapClass,
-                        role: 'group',
-                        style: wrapperStyle,
+                        style: rootStyle,
+                        ref: (el) => {
+                            if (el) this.rootRef = el.parentElement;
+                        },
                     },
-                    this.getRenderSlots(),
-                ),
-            ],
+                    [
+                    // 主列表
+                        createVNode(
+                            wrapTag,
+                            {
+                                class: wrapClass,
+                                role: 'group',
+                                style: wrapperStyle,
+                            },
+                            this.getRenderSlots(),
+                        ),
+                    ],
+                )],
         );
-
-        return cloneVNode(tempVirtualVNode, { ref: (el) => { if (el) this.rootRef = el; } }, true);
     },
 });

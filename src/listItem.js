@@ -7,8 +7,8 @@ import { ItemProps } from './props';
 // import useResize from '../_util/use/useResize';
 
 // wrapping for item
-export const FVirtualListItem = defineComponent({
-    name: 'FVirtualListItem',
+export const VirtualListItem = defineComponent({
+    name: 'VirtualListItem',
     props: ItemProps,
     setup (props, { attrs }) {
         const itemRef = ref();

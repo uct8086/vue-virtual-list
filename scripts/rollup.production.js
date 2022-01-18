@@ -3,7 +3,7 @@ import bannerString from './rollup.banner'
 
 export default {
     external: ['vue'],
-    input: './src/index.jsx',
+    input: './src/index.js',
     output: {
         format: 'umd',
         file: './dist/index.js',
