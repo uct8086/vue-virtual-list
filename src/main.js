@@ -276,7 +276,7 @@ export default defineComponent({
         };
 
         watch(
-            props.dataSources,
+            () => props.dataSources,
             () => {
                 virtual.updateParam('uniqueIds', getUniqueIdFromDataSources());
                 virtual.handleDataSourcesChange();

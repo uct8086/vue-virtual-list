@@ -47,6 +47,24 @@ items 数据示例：
   }
 ]
 ```
+
+响应式数据配置示例：
+
+```javascript
+let items = ref(DataItems); // DataItems is origin data
+const addItem = () => {
+    DataItems.push({
+        index: Math.random() * 1000 + 1,
+        name: "Brad" + Math.random() * 1000 + 1,
+        id: Date.now(),
+        desc: "html5",
+        size: 150,
+    });
+    items.value = JSON.parse(JSON.stringify(DataItems));
+};
+
+```
+
 ## 虚拟列表属性和方法
 
 ### 必须的属性
