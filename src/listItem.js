@@ -2,7 +2,8 @@
  * item component, we need to know their size change at any time
  */
 
-import { defineComponent, onMounted, ref, createVNode, h } from 'vue';
+import { defineComponent, ref, createVNode, h } from 'vue';
+import useResize from './useResize';
 import { ItemProps } from './props';
 // import useResize from '../_util/use/useResize';
 
@@ -12,19 +13,15 @@ export const VirtualListItem = defineComponent({
     props: ItemProps,
     setup (props, { attrs }) {
         const itemRef = ref();
-        const shapeKey = props.horizontal ? 'offsetWidth' : 'offsetHeight';
 
         // tell parent current size identify by unqiue key
         const dispatchSizeChange = () => {
+            const shapeKey = props.horizontal ? 'offsetWidth' : 'offsetHeight';
             const s = itemRef.value ? itemRef.value[shapeKey] : 0;
             attrs.onItemResized(props.uniqueKey, s);
         };
 
-        onMounted(() => {
-            dispatchSizeChange();
-        });
-
-        // useResize(itemRef, dispatchSizeChange);
+        useResize(itemRef, dispatchSizeChange);
 
         return {
             itemRef,

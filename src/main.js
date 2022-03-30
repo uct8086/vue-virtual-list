@@ -112,7 +112,7 @@ export default defineComponent({
             if (root) {
                 isHorizontal
                     ? root.scrollBy(offset, 0)
-                    : root.scrollBy(0, offset); // 解决设置OffsetTop无效的问题
+                    : root.scrollTo(0, offset); // 解决设置OffsetTop无效的问题
             }
         };
 
