@@ -257,3 +257,244 @@ const addItem = () => {
       <td>获取所有滚动大小（滚动高度或滚动宽度）。 </td>
     </tr>
   </table>
+
+  ## Props type
+
+### Required props
+
+| **&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Prop&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;** | **Type**  | **Description**                                                               |
+|------------------|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `data-key`       | String\|Function | The unique key get from `data-sources` in each data object. Or a function called with each `data-source` and return their unique key. Its value **must be unique** in `data-sources`, it is used for identifying item size. |
+| `data-sources`   | Array[Object]    | The source array built for list, each array data must be an object and has an unique key get or generate for `data-key` property.                                                                                           |
+### Optional props
+
+  <table>
+    <tr>
+      <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Prop&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td><code>keeps</code></td>
+      <td>Number</td>
+      <td>30</td>
+      <td>How many items you are expecting the virtual list to keep rendering in the real dom.</td>
+    </tr>
+    <tr>
+      <td><code>extra-props</code></td>
+      <td>Object</td>
+      <td>{}</td>
+      <td>Extra props assign to item component that are not in <code>data-sources</code>. Notice: <code>index</code> and <code>source</code> are both occupied inner.</td>
+    </tr>
+    <tr>
+      <td><code>estimate-size</code></td>
+      <td>Number</td>
+      <td>50</td>
+      <td>The estimate size of each item, if it is closer to the average size, the scrollbar length looks more accurately. It is <strong>recommended</strong> to assign the average that calculate by yourself.</td>
+    </tr>
+    <tr>
+      <td><code>start</code></td>
+      <td>Number</td>
+      <td>0</td>
+      <td>Setting scroll position stay start index.</td>
+    </tr>
+    <tr>
+      <td><code>offset</code></td>
+      <td>Number</td>
+      <td>0</td>
+      <td>Setting scroll position stay offset.</td>
+    </tr>
+    <tr>
+      <td><code>scroll</code></td>
+      <td>Event</td>
+      <td></td>
+      <td>Emited when scrolling, param <code>(event, range)</code>.</td>
+    </tr>
+    <tr>
+      <td><code>totop</code></td>
+      <td>Event</td>
+      <td></td>
+      <td>Emited when scrolled to top or left, no param.</td>
+    </tr>
+    <tr>
+      <td><code>tobottom</code></td>
+      <td>Event</td>
+      <td></td>
+      <td>Emited when scrolled to bottom or right, no param.</td>
+    </tr>
+    <tr>
+      <td><code>resized</code></td>
+      <td>Event</td>
+      <td></td>
+      <td>Emited when item resized (mounted), param <code>(id, size)</code>.</td>
+    </tr>
+    <tr>
+      <td><code>direction</code></td>
+      <td>String</td>
+      <td>vertical</td>
+      <td>Scroll direction, available values are <code>vertical</code> and <code>horizontal</code></td>
+    </tr>
+    <tr>
+      <td><code>page-mode</code></td>
+      <td>Boolean</td>
+      <td>false</td>
+      <td>Let virtual list using global document to scroll through the list.</td>
+    </tr>
+    <tr>
+      <td><code>top-threshold</code></td>
+      <td>Number</td>
+      <td>0</td>
+      <td>The threshold to emit <code>totop</code> event, attention to multiple calls.</td>
+    </tr>
+    <tr>
+      <td><code>bottom-threshold</code></td>
+      <td>Number</td>
+      <td>0</td>
+      <td>The threshold to emit <code>tobottom</code> event, attention to multiple calls.</td>
+    </tr>
+    <tr>
+      <td><code>root-tag</code></td>
+      <td>String</td>
+      <td>div</td>
+      <td>Root element tag name.</td>
+    </tr>
+    <tr>
+      <td><code>wrap-tag</code></td>
+      <td>String</td>
+      <td>div</td>
+      <td>List wrapper element <code>(role=group)</code> tag name.</td>
+    </tr>
+    <tr>
+      <td><code>wrap-class</code></td>
+      <td>String</td>
+      <td></td>
+      <td>List wrapper element class name.</td>
+    </tr>
+    <tr>
+      <td><code>wrap-style</code></td>
+      <td>Object</td>
+      <td>{}</td>
+      <td>List wrapper element inline style.</td>
+    </tr>
+    <tr>
+      <td><code>item-tag</code></td>
+      <td>String</td>
+      <td>div</td>
+      <td>Item wrapper element <code>(role=item)</code> tag name.</td>
+    </tr>
+    <tr>
+      <td><code>item-class</code></td>
+      <td>String</td>
+      <td></td>
+      <td>Item wrapper element class name.</td>
+    </tr>
+    <tr>
+      <td><code>item-class-add</code></td>
+      <td>Function</td>
+      <td></td>
+      <td>A function that you can return extra class (String) to item wrapper element, param <code>(index)</code>.</td>
+    </tr>
+    <tr>
+      <td><code>item-style</code></td>
+      <td>Object</td>
+      <td>{}</td>
+      <td>Item wrapper element inline style.</td>
+    </tr>
+    <tr>
+      <td><code>item-scoped-slots</code></td>
+      <td>Object</td>
+      <td>{}</td>
+      <td>The <code>$scopedSlots</code> for item component.</td>
+    </tr>
+    <tr>
+      <td><code>header-tag</code></td>
+      <td>String</td>
+      <td>div</td>
+      <td>For using header slot, header slot wrapper element <code>(role=header)</code> tag name.</td>
+    </tr>
+    <tr>
+      <td><code>header-class</code></td>
+      <td>String</td>
+      <td></td>
+      <td>For using header slot, header slot wrapper element class name.</td>
+    </tr>
+    <tr>
+      <td><code>header-style</code></td>
+      <td>Object</td>
+      <td>{}</td>
+      <td>For using header slot, header slot wrapper element inline style.</td>
+    </tr>
+    <tr>
+      <td><code>footer-tag</code></td>
+      <td>String</td>
+      <td>div</td>
+      <td>For using footer slot, footer slot wrapper element <code>(role=footer)</code> tag name.</td>
+    </tr>
+    <tr>
+      <td><code>footer-class</code></td>
+      <td>String</td>
+      <td></td>
+      <td>For using footer slot, footer slot wrapper element class name.</td>
+    </tr>
+    <tr>
+      <td><code>footer-style</code></td>
+      <td>Object</td>
+      <td>{}</td>
+      <td>For using using footer slot, footer slot wrapper element inline style.</td>
+    </tr>
+  </table>
+
+### Public methods
+
+<details>
+  <summary><strong>Usefull public methods</strong></summary>
+  <p></p>
+  <p>You can call these methods via <code><a href="https://vuejs.org/v2/guide/components-edge-cases.html#Accessing-Child-Component-Instances-amp-Child-Elements">ref</a></code>:</p>
+  <table>
+    <tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td><code>reset()</code></td>
+      <td>Reset all state back to initial.</td>
+    </tr>
+    <tr>
+      <td><code>scrollToBottom()</code></td>
+      <td>Manual set scroll position to bottom.</td>
+    </tr>
+    <tr>
+      <td><code>scrollToIndex(index)</code></td>
+      <td>Manual set scroll position to a designated index.</td>
+    </tr>
+    <tr>
+      <td><code>scrollToOffset(offset)</code></td>
+      <td>Manual set scroll position to a designated offset.</td>
+    </tr>
+    <tr>
+      <td><code>getSize(id)</code></td>
+      <td>Get the designated item size by id (from <code>data-key</code> value).</td>
+    </tr>
+    <tr>
+      <td><code>getSizes()</code></td>
+      <td>Get the total number of stored (rendered) items.</td>
+    </tr>
+    <tr>
+      <td><code>getOffset()</code></td>
+      <td>Get current scroll offset.</td>
+    </tr>
+    <tr>
+      <td><code>getClientSize()</code></td>
+      <td>Get wrapper element client viewport size (width or height).</td>
+    </tr>
+    <tr>
+      <td><code>getScrollSize()</code></td>
+      <td>Get all scroll size (scrollHeight or scrollWidth).</td>
+    </tr>
+    <tr>
+      <td><code>updatePageModeFront()</code></td>
+      <td>When using page mode and virtual list root element offsetTop or offsetLeft change, you need call this method manually.</td>
+    </tr>
+  </table>
+</details>
