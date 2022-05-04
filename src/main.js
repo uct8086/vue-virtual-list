@@ -121,17 +121,8 @@ export default defineComponent({
             const shepherd = rootRef.value;
             if (shepherd) {
                 const offset =
-                    shepherd[isHorizontal ? 'offsetLeft' : 'offsetTop'];
+                    shepherd[isHorizontal ? 'scrollWidth' : 'scrollHeight'];
                 scrollToOffset(offset);
-                // check if it's really scrolled to the bottom
-                // maybe list doesn't render and calculate to last range
-                // so we need retry in next event loop until it really at bottom
-                const time = setTimeout(() => {
-                    if (getOffset() + getClientSize() < getScrollSize()) {
-                        scrollToBottom();
-                    }
-                    clearTimeout(time);
-                }, 3);
             }
         };
 
@@ -251,7 +242,7 @@ export default defineComponent({
                                 scopedSlots: itemScopedSlots,
                                 style: itemStyle,
                                 onItemResized,
-                                class: `${itemClass}${
+                                class: `list-item-dynamic ${itemClass} ${
                                     itemClassAdd
                                         ? ` ${itemClassAdd(index)}`
                                         : ''
@@ -377,6 +368,7 @@ export default defineComponent({
 
         return h(
             'div', {
+                class: 'list-dynamic',
                 onScroll: (e) => {
                     this.onScroll(e);
                 },

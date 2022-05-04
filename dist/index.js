@@ -1,5 +1,5 @@
 /*!
- * vue-virtual-scroll-list v1.3.8-alfa
+ * vue-virtual-scroll-list v1.4.0
  * open source under the MIT license
  * https://github.com/uct8086/vue-virtual-list#readme
  */
@@ -1287,18 +1287,8 @@ var VirtualList = defineComponent({
       const shepherd = rootRef.value;
 
       if (shepherd) {
-        const offset = shepherd[isHorizontal ? 'offsetLeft' : 'offsetTop'];
-        scrollToOffset(offset); // check if it's really scrolled to the bottom
-        // maybe list doesn't render and calculate to last range
-        // so we need retry in next event loop until it really at bottom
-
-        const time = setTimeout(() => {
-          if (getOffset() + getClientSize() < getScrollSize()) {
-            scrollToBottom();
-          }
-
-          clearTimeout(time);
-        }, 3);
+        const offset = shepherd[isHorizontal ? 'scrollWidth' : 'scrollHeight'];
+        scrollToOffset(offset);
       }
     }; // set current scroll position to a expectant index
 
@@ -1390,7 +1380,6 @@ var VirtualList = defineComponent({
 
         for (let index = start; index <= end; index++) {
           const dataSource = dataSources[index];
-          console.log(dataSource, index);
 
           if (dataSource) {
             const uniqueKey = typeof dataKey === 'function' ? dataKey(dataSource) : dataSource[dataKey];
@@ -1409,7 +1398,7 @@ var VirtualList = defineComponent({
                 scopedSlots: itemScopedSlots,
                 style: itemStyle,
                 onItemResized,
-                class: `${itemClass}${itemClassAdd ? ` ${itemClassAdd(index)}` : ''}`
+                class: `list-item-dynamic ${itemClass} ${itemClassAdd ? ` ${itemClassAdd(index)}` : ''}`
               });
 
               _slots.push(tempNode);
@@ -1514,6 +1503,7 @@ var VirtualList = defineComponent({
       height: `${fullHeight}px`
     };
     return h('div', {
+      class: 'list-dynamic',
       onScroll: e => {
         this.onScroll(e);
       }

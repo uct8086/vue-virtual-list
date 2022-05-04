@@ -1,6 +1,6 @@
 {
   "name": "vue-virtual-list-v3",
-  "version": "1.3.9-alfa",
+  "version": "1.4.0",
   "description": " vue3 version virtual list, refer to  vue-virtual-scroll-list.",
   "main": "dist/index.js",
   "scripts": {
