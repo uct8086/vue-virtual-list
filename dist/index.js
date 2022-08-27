@@ -311,7 +311,11 @@ class Virtual {
 
 
   getEstimateSize() {
-    return this.isFixedType() ? this.fixedSizeValue : this.firstRangeAverageSize || this.param.estimateSize;
+    if (this.param.estimateSize && this.param.estimateSize !== 50) {
+      return this.param.estimateSize;
+    } else {
+      return this.isFixedType() ? this.fixedSizeValue : this.firstRangeAverageSize || this.param.estimateSize;
+    }
   }
 
 }
@@ -433,13 +437,13 @@ var isHidden = function (target) {
 };
 
 var isElement = function (obj) {
-  var _a, _b;
+  var _a;
 
   if (obj instanceof Element) {
     return true;
   }
 
-  var scope = (_b = (_a = obj) === null || _a === void 0 ? void 0 : _a.ownerDocument) === null || _b === void 0 ? void 0 : _b.defaultView;
+  var scope = (_a = obj === null || obj === void 0 ? void 0 : obj.ownerDocument) === null || _a === void 0 ? void 0 : _a.defaultView;
   return !!(scope && obj instanceof scope.Element);
 };
 
@@ -680,7 +684,7 @@ var queueMicroTask = function (callback) {
     }).observe(el_1, config);
 
     trigger = function () {
-      el_1.textContent = "" + (toggle_1 ? toggle_1-- : toggle_1++);
+      el_1.textContent = "".concat(toggle_1 ? toggle_1-- : toggle_1++);
     };
   }
 

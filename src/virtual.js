@@ -319,8 +319,10 @@ export default class Virtual {
 
     // get the item estimate size
     getEstimateSize () {
-        return this.isFixedType()
-            ? this.fixedSizeValue
-            : this.firstRangeAverageSize || this.param.estimateSize;
+        if (this.param.estimateSize && this.param.estimateSize !== 50) {
+            return this.param.estimateSize
+        } else {
+            return this.isFixedType() ? this.fixedSizeValue : this.firstRangeAverageSize || this.param.estimateSize;
+        }
     }
 }
