@@ -39,9 +39,9 @@ const getSentences = () => {
     let index = Math.floor(Math.random() * (sentence3.length - 1));
     return sentence3[index];
 };
-const sizes = [60, 80, 100, 150, 180];
+const sizes = [60, 80, 100, 150, 180, 500];
 const DataItems = [];
-const TOTAL_COUNT = 100;
+const TOTAL_COUNT = 400;
 let count = TOTAL_COUNT;
 while (count--) {
     const index = TOTAL_COUNT - count;
@@ -78,10 +78,20 @@ const addItem = () => {
   width: 100%;
   height: 500px;
   overflow-y: auto;
+  .list-item-dynamic {
+    display: flex;
+    align-items: center;
+    padding: 1em;
+    border-bottom: 1px solid;
+    border-color: lightgray;
+    background: rgba(83, 132, 255, 0.06) none repeat scroll 0% 0%;
+    border-bottom: 2px solid rgb(255, 255, 255);
+  }
 }
 .item-inner {
   .head {
     font-weight: 500;
+    text-align: left;
   }
   span:first-child {
     margin-right: 1em;

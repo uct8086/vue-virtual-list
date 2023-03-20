@@ -157,6 +157,12 @@ const addItem = () => {
       <td>发出<code>tobottom</code> 事件的阈值, 注意多个调用。</td>
     </tr>
     <tr>
+      <td><code>container-class</code></td>
+      <td>String</td>
+      <td></td>
+      <td>容器的类名，一般需要添加高度/或者宽度来让内容滚动，1.5.0版本新增</td>
+    </tr>
+    <tr>
       <td><code>root-tag</code></td>
       <td>String</td>
       <td>div</td>
