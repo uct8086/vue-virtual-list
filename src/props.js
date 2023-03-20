@@ -48,6 +48,10 @@ export const VirtualProps = {
         type: Boolean,
         default: false,
     },
+    containerClass: {
+        type: String,
+        default: '',
+    },
     rootTag: {
         type: String,
         default: 'div',

@@ -340,8 +340,8 @@ export default defineComponent({
             wrapClass,
             wrapStyle,
             fullHeight,
+            containerClass,
         } = this;
-
         // wrap style
         const horizontalStyle = {
             position: 'absolute',
@@ -368,7 +368,7 @@ export default defineComponent({
 
         return h(
             'div', {
-                class: 'list-dynamic',
+                class: containerClass,
                 onScroll: (e) => {
                     this.onScroll(e);
                 },
