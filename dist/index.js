@@ -1,5 +1,5 @@
 /*!
- * vue-virtual-scroll-list v1.4.0
+ * vue-virtual-scroll-list v1.5.1
  * open source under the MIT license
  * https://github.com/uct8086/vue-virtual-list#readme
  */
@@ -1040,6 +1040,10 @@ const VirtualProps = {
     type: Boolean,
     default: false
   },
+  containerClass: {
+    type: String,
+    default: ''
+  },
   rootTag: {
     type: String,
     default: 'div'
@@ -1475,7 +1479,8 @@ var VirtualList = defineComponent({
       wrapTag,
       wrapClass,
       wrapStyle,
-      fullHeight
+      fullHeight,
+      containerClass
     } = this; // wrap style
 
     const horizontalStyle = {
@@ -1503,7 +1508,7 @@ var VirtualList = defineComponent({
       height: `${fullHeight}px`
     };
     return h('div', {
-      class: 'list-dynamic',
+      class: containerClass,
       onScroll: e => {
         this.onScroll(e);
       }

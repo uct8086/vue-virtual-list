@@ -2,6 +2,10 @@
 
 当列表的数据量很大时，使用虚拟列表呈现内容。
 
+## 更新日志
+
+1.5.0版本新增 `container-class` 属性，用户可以自主设置高度/宽度
+
 ## 组件注册
 
 ```js
@@ -9,6 +13,10 @@ import VirtualList from 'vue-virtual-list-v3';
 
 app.use(VirtualList);
 ```
+
+## 在线示例
+
+[点我查看完整在线示例](https://stackblitz.com/edit/vue-virtual-list-v3?file=package.json,src%2Fmain.js,src%2FApp.vue)
 
 ## 基本用法
 <br/>
