@@ -71,7 +71,7 @@ export default defineComponent({
                     uniqueIds: getUniqueIdFromDataSources(),
                 },
                 (range) => {
-                    rangeRef.value = range;
+                    rangeRef.value = range; // 这里更新Range
                 },
             );
             // sync initial range
