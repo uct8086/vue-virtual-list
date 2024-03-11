@@ -16,7 +16,9 @@ app.use(VirtualList);
 
 ## 在线示例
 
-[点我查看完整在线示例](https://stackblitz.com/edit/vue-virtual-list-v3?file=package.json,src%2Fmain.js,src%2FApp.vue)
+[1、点我查看完整在线示例](https://stackblitz.com/edit/vue-virtual-list-v3?file=package.json,src%2Fmain.js,src%2FApp.vue)
+
+[2、pageMode live  demo](https://stackblitz.com/edit/vue-virtual-list-v3-ubt81j?file=src%2FApp.vue)
 
 ## 基本用法
 <br/>

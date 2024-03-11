@@ -1,10 +1,10 @@
 /*!
- * vue-virtual-scroll-list v1.5.1
+ * vue-virtual-scroll-list v1.5.2
  * open source under the MIT license
  * https://github.com/uct8086/vue-virtual-list#readme
  */
 
-import { ref, watch, onBeforeUnmount, defineComponent, h, createVNode, computed, onActivated, onMounted } from 'vue';
+import { ref, watch, onBeforeUnmount, defineComponent, h, createVNode, computed, onActivated, onDeactivated, onMounted } from 'vue';
 
 /**
  * virtual list core calculating center
@@ -433,13 +433,13 @@ var isHidden = function (target) {
 };
 
 var isElement = function (obj) {
-  var _a, _b;
+  var _a;
 
   if (obj instanceof Element) {
     return true;
   }
 
-  var scope = (_b = (_a = obj) === null || _a === void 0 ? void 0 : _a.ownerDocument) === null || _b === void 0 ? void 0 : _b.defaultView;
+  var scope = (_a = obj === null || obj === void 0 ? void 0 : obj.ownerDocument) === null || _a === void 0 ? void 0 : _a.defaultView;
   return !!(scope && obj instanceof scope.Element);
 };
 
@@ -680,7 +680,7 @@ var queueMicroTask = function (callback) {
     }).observe(el_1, config);
 
     trigger = function () {
-      el_1.textContent = "" + (toggle_1 ? toggle_1-- : toggle_1++);
+      el_1.textContent = "".concat(toggle_1 ? toggle_1-- : toggle_1++);
     };
   }
 
@@ -1244,7 +1244,7 @@ var VirtualList = defineComponent({
         // recommend for a third of keeps
         uniqueIds: getUniqueIdFromDataSources()
       }, range => {
-        rangeRef.value = range;
+        rangeRef.value = range; // 这里更新Range
       }); // sync initial range
 
       rangeRef.value = virtual.getRange();
@@ -1259,30 +1259,49 @@ var VirtualList = defineComponent({
 
 
     const getOffset = () => {
-      const root = rootRef.value;
-      return root ? Math.ceil(root[directionKey]) : 0;
+      if (props.pageMode) {
+        return document.documentElement[directionKey] || document.body[directionKey];
+      } else {
+        const root = rootRef.value;
+        return root ? Math.ceil(root[directionKey]) : 0;
+      }
     }; // return client viewport size
 
 
     const getClientSize = () => {
       const key = isHorizontal ? 'clientWidth' : 'clientHeight';
-      const root = rootRef.value;
-      return root ? Math.ceil(root[key]) : 0;
+
+      if (props.pageMode) {
+        return document.documentElement[key] || document.body[key];
+      } else {
+        const root = rootRef.value;
+        return root ? Math.ceil(root[key]) : 0;
+      }
     }; // return all scroll size
 
 
     const getScrollSize = () => {
       const key = isHorizontal ? 'scrollWidth' : 'scrollHeight';
-      const root = rootRef.value;
-      return root ? Math.ceil(root[key]) : 0;
+
+      if (props.pageMode) {
+        return document.documentElement[key] || document.body[key];
+      } else {
+        const root = rootRef.value;
+        return root ? Math.ceil(root[key]) : 0;
+      }
     }; // set current scroll position to a expectant offset
 
 
     const scrollToOffset = offset => {
-      const root = rootRef.value;
+      if (props.pageMode) {
+        document.body[directionKey] = offset;
+        document.documentElement[directionKey] = offset;
+      } else {
+        const root = rootRef.value;
 
-      if (root) {
-        isHorizontal ? root.scrollBy(offset, 0) : root.scrollTo(0, offset); // 解决设置OffsetTop无效的问题
+        if (root) {
+          isHorizontal ? root.scrollBy(offset, 0) : root.scrollTo(0, offset); // 解决设置OffsetTop无效的问题
+        }
       }
     }; // set current scroll position to bottom
 
@@ -1304,6 +1323,22 @@ var VirtualList = defineComponent({
       } else {
         const offset = virtual.getOffset(index);
         scrollToOffset(offset);
+      }
+    }; // when using page mode we need update slot header size manually
+    // taking root offset relative to the browser as slot header size
+
+
+    const updatePageModeFront = () => {
+      const root = rootRef.value;
+
+      if (root) {
+        const rect = root.getBoundingClientRect();
+        const {
+          defaultView
+        } = root.ownerDocument;
+        const offsetFront = isHorizontal ? rect.left + defaultView.pageXOffset : rect.top + defaultView.pageYOffset;
+        virtual.updateParam('slotHeaderSize', offsetFront);
+        console.log('virtual:', virtual.param);
       }
     }; // reset all state back to initial
 
@@ -1437,6 +1472,17 @@ var VirtualList = defineComponent({
 
     onActivated(() => {
       scrollToOffset(virtual.offset);
+
+      if (props.pageMode) {
+        document.addEventListener('scroll', onScroll, {
+          passive: false
+        });
+      }
+    });
+    onDeactivated(() => {
+      if (props.pageMode) {
+        document.removeEventListener('scroll', onScroll);
+      }
     });
     onMounted(() => {
       // set position
@@ -1444,6 +1490,19 @@ var VirtualList = defineComponent({
         scrollToIndex(props.start);
       } else if (props.offset) {
         scrollToOffset(props.offset);
+      } // in page mode we bind scroll event to document
+
+
+      if (props.pageMode) {
+        updatePageModeFront();
+        document.addEventListener('scroll', onScroll, {
+          passive: false
+        });
+      }
+    });
+    onBeforeUnmount(() => {
+      if (props.pageMode) {
+        document.removeEventListener('scroll', onScroll);
       }
     });
     return {
@@ -1460,6 +1519,7 @@ var VirtualList = defineComponent({
       getRenderSlots,
       onItemResized,
       onSlotResized,
+      updatePageModeFront,
       fullHeight,
       isHorizontal,
       rootRef,
@@ -1475,6 +1535,7 @@ var VirtualList = defineComponent({
     } = this.rangeRef;
     const {
       isHorizontal,
+      pageMode,
       rootTag,
       wrapTag,
       wrapClass,
@@ -1509,8 +1570,8 @@ var VirtualList = defineComponent({
     };
     return h('div', {
       class: containerClass,
-      onScroll: e => {
-        this.onScroll(e);
+      on: {
+        '&scroll': !pageMode && this.onScroll
       }
     }, [h(rootTag, {
       style: rootStyle,

@@ -333,7 +333,7 @@ export default defineComponent({
             scrollToOffset(virtual.offset);
             if (props.pageMode) {
                 document.addEventListener('scroll', onScroll, {
-                    passive: false
+                    passive: false,
                 })
             }
         });
@@ -354,9 +354,9 @@ export default defineComponent({
             // in page mode we bind scroll event to document
             if (props.pageMode) {
                 updatePageModeFront()
-        
+
                 document.addEventListener('scroll', onScroll, {
-                    passive: false
+                    passive: false,
                 })
             }
         });
@@ -429,8 +429,8 @@ export default defineComponent({
             'div', {
                 class: containerClass,
                 on: {
-                    '&scroll': !pageMode && this.onScroll
-                }
+                    '&scroll': !pageMode && this.onScroll,
+                },
             }, [
                 h(
                     rootTag,
