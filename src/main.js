@@ -12,6 +12,8 @@ import {
     createVNode,
     computed,
     h,
+    onDeactivated,
+    onBeforeUnmount,
 } from 'vue';
 import Virtual from './virtual';
 import { VirtualListItem } from './listItem';
@@ -88,31 +90,48 @@ export default defineComponent({
 
         // return current scroll offset
         const getOffset = () => {
-            const root = rootRef.value;
-            return root ? Math.ceil(root[directionKey]) : 0;
+            if (props.pageMode) {
+                return document.documentElement[directionKey] || document.body[directionKey]
+            } else {
+                const root = rootRef.value;
+                return root ? Math.ceil(root[directionKey]) : 0;
+            }
         };
 
         // return client viewport size
         const getClientSize = () => {
             const key = isHorizontal ? 'clientWidth' : 'clientHeight';
-            const root = rootRef.value;
-            return root ? Math.ceil(root[key]) : 0;
+            if (props.pageMode) {
+                return document.documentElement[key] || document.body[key]
+            } else {
+                const root = rootRef.value;
+                return root ? Math.ceil(root[key]) : 0;
+            }
         };
 
         // return all scroll size
         const getScrollSize = () => {
             const key = isHorizontal ? 'scrollWidth' : 'scrollHeight';
-            const root = rootRef.value;
-            return root ? Math.ceil(root[key]) : 0;
+            if (props.pageMode) {
+                return document.documentElement[key] || document.body[key]
+            } else {
+                const root = rootRef.value;
+                return root ? Math.ceil(root[key]) : 0;
+            }
         };
 
         // set current scroll position to a expectant offset
         const scrollToOffset = (offset) => {
-            const root = rootRef.value;
-            if (root) {
-                isHorizontal
-                    ? root.scrollBy(offset, 0)
-                    : root.scrollTo(0, offset); // 解决设置OffsetTop无效的问题
+            if (props.pageMode) {
+                document.body[directionKey] = offset
+                document.documentElement[directionKey] = offset
+            } else {
+                const root = rootRef.value;
+                if (root) {
+                    isHorizontal
+                        ? root.scrollBy(offset, 0)
+                        : root.scrollTo(0, offset); // 解决设置OffsetTop无效的问题
+                }
             }
         };
 
@@ -134,6 +153,19 @@ export default defineComponent({
             } else {
                 const offset = virtual.getOffset(index);
                 scrollToOffset(offset);
+            }
+        };
+
+        // when using page mode we need update slot header size manually
+        // taking root offset relative to the browser as slot header size
+        const updatePageModeFront = () => {
+            const root = rootRef.value;
+            if (root) {
+                const rect = root.getBoundingClientRect()
+                const { defaultView } = root.ownerDocument
+                const offsetFront = isHorizontal ? (rect.left + defaultView.pageXOffset) : (rect.top + defaultView.pageYOffset)
+                virtual.updateParam('slotHeaderSize', offsetFront)
+                console.log('virtual:', virtual.param);
             }
         };
 
@@ -299,7 +331,18 @@ export default defineComponent({
         // set back offset when awake from keep-alive
         onActivated(() => {
             scrollToOffset(virtual.offset);
+            if (props.pageMode) {
+                document.addEventListener('scroll', onScroll, {
+                    passive: false
+                })
+            }
         });
+
+        onDeactivated(() => {
+            if (props.pageMode) {
+                document.removeEventListener('scroll', onScroll)
+            }
+        })
 
         onMounted(() => {
             // set position
@@ -307,6 +350,20 @@ export default defineComponent({
                 scrollToIndex(props.start);
             } else if (props.offset) {
                 scrollToOffset(props.offset);
+            }
+            // in page mode we bind scroll event to document
+            if (props.pageMode) {
+                updatePageModeFront()
+        
+                document.addEventListener('scroll', onScroll, {
+                    passive: false
+                })
+            }
+        });
+
+        onBeforeUnmount(() => {
+            if (props.pageMode) {
+                document.removeEventListener('scroll', onScroll)
             }
         });
 
@@ -324,6 +381,7 @@ export default defineComponent({
             getRenderSlots,
             onItemResized,
             onSlotResized,
+            updatePageModeFront,
             fullHeight,
             isHorizontal,
             rootRef,
@@ -335,6 +393,7 @@ export default defineComponent({
         const { padFront, padBehind } = this.rangeRef;
         const {
             isHorizontal,
+            pageMode,
             rootTag,
             wrapTag,
             wrapClass,
@@ -369,9 +428,9 @@ export default defineComponent({
         return h(
             'div', {
                 class: containerClass,
-                onScroll: (e) => {
-                    this.onScroll(e);
-                },
+                on: {
+                    '&scroll': !pageMode && this.onScroll
+                }
             }, [
                 h(
                     rootTag,
