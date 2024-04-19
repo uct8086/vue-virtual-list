@@ -428,8 +428,9 @@ export default defineComponent({
         return h(
             'div', {
                 class: containerClass,
-                on: {
-                    '&scroll': !pageMode && this.onScroll,
+                onScroll: (e) => {
+                    if (pageMode) return;
+                    this.onScroll(e);
                 },
             }, [
                 h(
