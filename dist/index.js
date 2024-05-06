@@ -1,5 +1,5 @@
 /*!
- * vue-virtual-scroll-list v1.5.2
+ * vue-virtual-scroll-list v1.5.4
  * open source under the MIT license
  * https://github.com/uct8086/vue-virtual-list#readme
  */
@@ -1570,8 +1570,9 @@ var VirtualList = defineComponent({
     };
     return h('div', {
       class: containerClass,
-      on: {
-        '&scroll': !pageMode && this.onScroll
+      onScroll: e => {
+        if (pageMode) return;
+        this.onScroll(e);
       }
     }, [h(rootTag, {
       style: rootStyle,
