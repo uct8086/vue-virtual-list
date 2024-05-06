@@ -1,5 +1,5 @@
 /*!
- * vue-virtual-scroll-list v1.5.4
+ * vue-virtual-scroll-list v1.5.5
  * open source under the MIT license
  * https://github.com/uct8086/vue-virtual-list#readme
  */
@@ -1458,6 +1458,8 @@ var VirtualList = defineComponent({
     watch(() => props.dataSources, () => {
       virtual.updateParam('uniqueIds', getUniqueIdFromDataSources());
       virtual.handleDataSourcesChange();
+    }, {
+      deep: true
     });
     watch(() => props.keeps, newValue => {
       virtual.updateParam('keeps', newValue);

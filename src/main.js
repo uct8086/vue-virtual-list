@@ -305,8 +305,8 @@ export default defineComponent({
                 virtual.handleDataSourcesChange();
             },
             {
-                deep: true
-            }
+                deep: true,
+            },
         );
 
         watch(
