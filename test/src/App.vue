@@ -23,7 +23,7 @@
   </div>
 </template>
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 const genUniqueId = (prefix) => {
     return `${prefix}$${Math.random().toString(16).substr(9)}`;
 };
@@ -40,12 +40,12 @@ const getSentences = () => {
     return sentence3[index];
 };
 const sizes = [60, 80, 100, 150, 180, 500];
-const DataItems = [];
-const TOTAL_COUNT = 400;
+const items = ref([]);
+const TOTAL_COUNT = 3;
 let count = TOTAL_COUNT;
 while (count--) {
     const index = TOTAL_COUNT - count;
-    DataItems.push({
+    items.value.push({
         index,
         name: `\n${Math.random()}`,
         id: genUniqueId(index),
@@ -53,18 +53,18 @@ while (count--) {
         size: sizes[Math.floor(Math.random() * 5)]
     });
 }
-let items = ref(DataItems);
+
 const addItem = () => {
-    DataItems.push({
+  const currentItems = [...items.value]
+  currentItems.push({
         index: Math.random() * 1000 + 1,
         name: "Brad" + Math.random() * 1000 + 1,
         id: Date.now(),
         desc: "html5",
         size: 150,
     });
-    console.log(DataItems);
-    // items.value = DataItems; // 这样不行
-    items.value = JSON.parse(JSON.stringify(DataItems));
+    console.log(currentItems);
+    items.value = currentItems;
 };
 </script>
 <style lang="less">

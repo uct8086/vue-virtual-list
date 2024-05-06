@@ -304,6 +304,9 @@ export default defineComponent({
                 virtual.updateParam('uniqueIds', getUniqueIdFromDataSources());
                 virtual.handleDataSourcesChange();
             },
+            {
+                deep: true
+            }
         );
 
         watch(

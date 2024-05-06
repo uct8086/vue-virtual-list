@@ -40,32 +40,31 @@ const getSentences = () => {
   return sentence3[index];
 };
 const sizes = [60, 80, 100, 150, 180, 500];
-const DataItems = [];
-const TOTAL_COUNT = 400;
+const items = ref([]);
+const TOTAL_COUNT = 3;
 let count = TOTAL_COUNT;
 while (count--) {
-  const index = TOTAL_COUNT - count;
-  DataItems.push({
-    index,
-    name: `\n${Math.random()}`,
-    id: genUniqueId(index),
-    desc: getSentences(),
-    size: sizes[Math.floor(Math.random() * 5)],
-  });
+    const index = TOTAL_COUNT - count;
+    items.value.push({
+        index,
+        name: `\n${Math.random()}`,
+        id: genUniqueId(index),
+        desc: getSentences(),
+        size: sizes[Math.floor(Math.random() * 5)]
+    });
 }
 
-
-const virtualList = ref();
-let items = ref(DataItems);
 const addItem = () => {
-  DataItems.push({
-    index: Math.random() * 1000 + 1,
-    name: 'Brad' + Math.random() * 1000 + 1,
-    id: Date.now(),
-    desc: 'html5',
-    size: 150,
-  });
-  items.value = JSON.parse(JSON.stringify(DataItems));
+  const currentItems = [...items.value]
+  currentItems.push({
+        index: Math.random() * 1000 + 1,
+        name: "Brad" + Math.random() * 1000 + 1,
+        id: Date.now(),
+        desc: "html5",
+        size: 150,
+    });
+    console.log(currentItems);
+    items.value = currentItems;
 };
 
 </script>
