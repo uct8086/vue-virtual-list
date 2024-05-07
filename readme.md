@@ -2,14 +2,6 @@
 
 当列表的数据量很大时，使用虚拟列表呈现内容。
 
-## 更新日志
-
-1.5.4 版本修复非pageMode模式下数据不更新问题
-
-1.5.2 版本新增pageMode模式
-
-1.5.0 版本新增 `container-class` 属性，用户可以自主设置高度/宽度
-
 ## 组件注册
 
 ```js
@@ -65,19 +57,28 @@ items 数据示例：
 响应式数据配置示例：
 
 ```javascript
-let items = ref(DataItems); // DataItems is origin data
+let items = ref([]); 
 const addItem = () => {
-    DataItems.push({
+    items.value.push({
         index: Math.random() * 1000 + 1,
         name: "Brad" + Math.random() * 1000 + 1,
         id: Date.now(),
         desc: "html5",
         size: 150,
     });
-    items.value = JSON.parse(JSON.stringify(DataItems));
 };
 
 ```
+
+## 更新日志
+
+1.5.5 版本修复dataSources变化时，列表不更新的问题
+
+1.5.4 版本修复非pageMode模式下数据不更新问题
+
+1.5.2 版本新增pageMode模式
+
+1.5.0 版本新增 `container-class` 属性，用户可以自主设置高度/宽度
 
 ## 虚拟列表属性和方法
 
