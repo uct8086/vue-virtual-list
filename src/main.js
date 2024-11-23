@@ -2,7 +2,7 @@
  * virtual list default component
  * rewrite by uct8086
  */
-
+/*global document:readonly, console:readonly*/
 import {
     defineComponent,
     watch,

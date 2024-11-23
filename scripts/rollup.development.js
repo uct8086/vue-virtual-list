@@ -1,4 +1,4 @@
-import ProductionConfig from './rollup.production'
+import ProductionConfig from './rollup.production.js'
 
 // development mode just rewrite from production config.
 export default Object.assign({}, ProductionConfig, {

@@ -1,4 +1,4 @@
-haha 
+ 
 import { ref, watch, onBeforeUnmount, defineComponent, h, createVNode, computed, onActivated, onDeactivated, onMounted } from 'vue';
 
 function _arrayLikeToArray(r, a) {
@@ -1139,7 +1139,7 @@ var VirtualListItem = defineComponent({
  * virtual list default component
  * rewrite by uct8086
  */
-/*global document:readonly, console:readonly*/
+
 var TO_TOP_EVENT = 'totop';
 var TO_BOTTOM_EVENT = 'tobottom';
 var RESIZED_EVENT = 'resized';
@@ -1527,3 +1527,4 @@ var index = {
 };
 
 export { index as default };
+//# sourceMappingURL=index.js.map
