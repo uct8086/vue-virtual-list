@@ -1,4 +1,9 @@
-haha 
+/*!
+ * vue-virtual-scroll-list v1.5.7
+ * open source under the MIT license
+ * https://github.com/uct8086/vue-virtual-list#readme
+ */
+
 import { ref, watch, onBeforeUnmount, defineComponent, h, createVNode, computed, onActivated, onDeactivated, onMounted } from 'vue';
 
 function _arrayLikeToArray(r, a) {
