@@ -16,6 +16,19 @@ app.use(VirtualList);
 
 [2、pageMode live  demo](https://stackblitz.com/edit/vue-virtual-list-v3-ubt81j?file=src%2FApp.vue)
 
+## 本地开发
+
+```bash
+pnpm install
+pnpm dev
+```
+
+本地运行示例项目：
+
+```bash
+pnpm dev:docs
+```
+
 ## 基本用法
 <br/>
 
@@ -71,6 +84,8 @@ const addItem = () => {
 ```
 
 ## 更新日志
+
+1.6.0 版本更新依赖到最新稳定版本，修复 pageMode/slot 监听稳定性问题，并优化跨平台脚本
 
 1.5.5 版本修复dataSources变化时，列表不更新的问题
 

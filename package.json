@@ -19,12 +19,12 @@
   "author": "uct8086",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npm run lint && rollup --config ./scripts/rollup.production.js",
-    "build:docs": "cd example && npm run build && cp ../dist/index.js ../docs",
+    "build": "pnpm lint && rollup --config ./scripts/rollup.production.js",
+    "build:docs": "pnpm --dir ./test build",
     "dev": "rollup --config ./scripts/rollup.development.js --watch",
-    "dev:docs": "cd example && npm run dev",
+    "dev:docs": "pnpm --dir ./test dev",
     "lint": "eslint . --fix",
-    "test": "rm -rf ./coverage && jest"
+    "test": "echo \"No automated tests configured\""
   },
   "config": {
     "commitizen": {
@@ -35,22 +35,17 @@
     "@juggle/resize-observer": "3.4.0"
   },
   "devDependencies": {
-    "@babel/core": "7.26.0",
-    "@babel/helpers": "7.26.0",
-    "@babel/highlight": "7.25.9",
-    "@babel/preset-env": "7.26.0",
-    "@eslint/js": "^9.15.0",
-    "@rollup/plugin-babel": "6.0.4",
-    "@rollup/plugin-node-resolve": "15.3.0",
-    "@vue/babel-plugin-jsx": "1.2.5",
+    "@babel/core": "7.29.0",
+    "@babel/helpers": "7.29.2",
+    "@babel/preset-env": "7.29.2",
+    "@eslint/js": "^9.39.4",
+    "@rollup/plugin-babel": "7.0.0",
+    "@rollup/plugin-node-resolve": "16.0.3",
+    "@vue/babel-plugin-jsx": "2.0.1",
     "cz-conventional-changelog": "3.3.0",
-    "eslint": "9.15.0",
-    "eslint-plugin-import": "2.31.0",
-    "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-promise": "7.1.0",
-    "gensync": "1.0.0-beta.2",
-    "rollup": "4.27.3",
-    "vue": "3.5.13"
+    "eslint": "9.39.4",
+    "rollup": "4.60.2",
+    "vue": "3.5.33"
   },
   "files": [
     "dist/"

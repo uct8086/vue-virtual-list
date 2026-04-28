@@ -35,10 +35,14 @@ export default defineComponent({
     setup (props, { emit, slots }) {
         const isHorizontal = props.direction === 'horizontal';
         const directionKey = isHorizontal ? 'scrollLeft' : 'scrollTop';
+        const hasHeaderSlot = typeof slots.header === 'function';
+        const hasFooterSlot = typeof slots.footer === 'function';
 
         const rootRef = ref();
         const shepherdRef = ref();
         const rangeRef = ref(Object.create(null));
+        const pageModeScrollOptions = { passive: true };
+        let pageModeListening = false;
 
         let virtual = null;
 
@@ -91,7 +95,7 @@ export default defineComponent({
         // return current scroll offset
         const getOffset = () => {
             if (props.pageMode) {
-                return document.documentElement[directionKey] || document.body[directionKey]
+                return document.documentElement[directionKey] || document.body[directionKey] || 0;
             } else {
                 const root = rootRef.value;
                 return root ? Math.ceil(root[directionKey]) : 0;
@@ -102,7 +106,7 @@ export default defineComponent({
         const getClientSize = () => {
             const key = isHorizontal ? 'clientWidth' : 'clientHeight';
             if (props.pageMode) {
-                return document.documentElement[key] || document.body[key]
+                return document.documentElement[key] || document.body[key] || 0;
             } else {
                 const root = rootRef.value;
                 return root ? Math.ceil(root[key]) : 0;
@@ -113,7 +117,7 @@ export default defineComponent({
         const getScrollSize = () => {
             const key = isHorizontal ? 'scrollWidth' : 'scrollHeight';
             if (props.pageMode) {
-                return document.documentElement[key] || document.body[key]
+                return document.documentElement[key] || document.body[key] || 0;
             } else {
                 const root = rootRef.value;
                 return root ? Math.ceil(root[key]) : 0;
@@ -123,13 +127,13 @@ export default defineComponent({
         // set current scroll position to a expectant offset
         const scrollToOffset = (offset) => {
             if (props.pageMode) {
-                document.body[directionKey] = offset
-                document.documentElement[directionKey] = offset
+                document.body[directionKey] = offset;
+                document.documentElement[directionKey] = offset;
             } else {
                 const root = rootRef.value;
                 if (root) {
                     isHorizontal
-                        ? root.scrollBy(offset, 0)
+                        ? root.scrollTo(offset, 0)
                         : root.scrollTo(0, offset); // 解决设置OffsetTop无效的问题
                 }
             }
@@ -161,11 +165,29 @@ export default defineComponent({
         const updatePageModeFront = () => {
             const root = rootRef.value;
             if (root) {
-                const rect = root.getBoundingClientRect()
-                const { defaultView } = root.ownerDocument
-                const offsetFront = isHorizontal ? (rect.left + defaultView.pageXOffset) : (rect.top + defaultView.pageYOffset)
-                virtual.updateParam('slotHeaderSize', offsetFront)
-                console.log('virtual:', virtual.param);
+                const rect = root.getBoundingClientRect();
+                const { defaultView } = root.ownerDocument;
+                const pageXOffset = defaultView ? defaultView.pageXOffset : 0;
+                const pageYOffset = defaultView ? defaultView.pageYOffset : 0;
+                const offsetFront = isHorizontal
+                    ? (rect.left + pageXOffset)
+                    : (rect.top + pageYOffset);
+
+                virtual.updateParam('slotHeaderSize', offsetFront);
+            }
+        };
+
+        const bindPageModeScroll = () => {
+            if (!pageModeListening) {
+                document.addEventListener('scroll', onScroll, pageModeScrollOptions);
+                pageModeListening = true;
+            }
+        };
+
+        const unbindPageModeScroll = () => {
+            if (pageModeListening) {
+                document.removeEventListener('scroll', onScroll);
+                pageModeListening = false;
             }
         };
 
@@ -184,7 +206,7 @@ export default defineComponent({
 
         // event called when slot mounted or size changed
         const onSlotResized = (type, size, hasInit) => {
-            if (slots.header() || slots.footer()) {
+            if (hasHeaderSlot || hasFooterSlot) {
                 if (type === SLOT_TYPE.HEADER) {
                     virtual.updateParam('slotHeaderSize', size);
                 } else if (type === SLOT_TYPE.FOOTER) {
@@ -335,17 +357,15 @@ export default defineComponent({
         onActivated(() => {
             scrollToOffset(virtual.offset);
             if (props.pageMode) {
-                document.addEventListener('scroll', onScroll, {
-                    passive: false,
-                })
+                bindPageModeScroll();
             }
         });
 
         onDeactivated(() => {
             if (props.pageMode) {
-                document.removeEventListener('scroll', onScroll)
+                unbindPageModeScroll();
             }
-        })
+        });
 
         onMounted(() => {
             // set position
@@ -356,17 +376,14 @@ export default defineComponent({
             }
             // in page mode we bind scroll event to document
             if (props.pageMode) {
-                updatePageModeFront()
-
-                document.addEventListener('scroll', onScroll, {
-                    passive: false,
-                })
+                updatePageModeFront();
+                bindPageModeScroll();
             }
         });
 
         onBeforeUnmount(() => {
             if (props.pageMode) {
-                document.removeEventListener('scroll', onScroll)
+                unbindPageModeScroll();
             }
         });
 

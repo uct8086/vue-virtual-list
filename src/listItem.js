@@ -48,7 +48,7 @@ export const VirtualListItem = defineComponent({
             tag,
             {
                 key: uniqueKey,
-                role: 'listItem',
+                role: 'listitem',
                 ref: (el) => {
                     if (el) this.itemRef = el;
                 },
