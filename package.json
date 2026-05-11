@@ -1,6 +1,6 @@
 {
   "name": "vue-virtual-list-v3",
-  "version": "1.5.8",
+  "version": "1.5.8-alfa",
   "description": " vue3 version virtual list, refer to  vue-virtual-scroll-list.",
   "type": "module",
   "keywords": [
