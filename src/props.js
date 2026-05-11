@@ -23,6 +23,10 @@ export const VirtualProps = {
         type: Number,
         default: 50,
     },
+    // Optional exact item size source, used to avoid estimate gap on append.
+    sizeKey: {
+        type: [String, Function],
+    },
 
     direction: {
         type: String,
@@ -79,7 +83,7 @@ export const VirtualProps = {
         type: Function,
     },
     itemStyle: {
-        type: Object,
+        type: [Object, Function],
     },
     headerTag: {
         type: String,

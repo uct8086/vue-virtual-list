@@ -423,7 +423,7 @@ var Virtual = /*#__PURE__*/function () {
   }, {
     key: "getEstimateSize",
     value: function getEstimateSize() {
-      return this.isFixedType() ? this.fixedSizeValue : this.firstRangeAverageSize || this.param.estimateSize;
+      return this.isFixedType() ? this.fixedSizeValue : this.param.estimateSize;
     }
   }]);
 }();
@@ -972,6 +972,10 @@ var VirtualProps = {
     type: Number,
     "default": 50
   },
+  // Optional exact item size source, used to avoid estimate gap on append.
+  sizeKey: {
+    type: [String, Function]
+  },
   direction: {
     type: String,
     "default": 'vertical' // the other value is horizontal
@@ -1027,7 +1031,7 @@ var VirtualProps = {
     type: Function
   },
   itemStyle: {
-    type: Object
+    type: [Object, Function]
   },
   headerTag: {
     type: String,
@@ -1166,23 +1170,56 @@ var VirtualList = defineComponent({
     var rootRef = ref();
     var shepherdRef = ref();
     var rangeRef = ref(Object.create(null));
+    var sizeVersionRef = ref(0);
     var pageModeScrollOptions = {
       passive: true
     };
     var pageModeListening = false;
     var virtual = null;
     var fullHeight = computed(function () {
-      var padBehind = rangeRef.value.padBehind;
-      if (padBehind !== 0) {
-        return virtual && virtual.getEstimateSize() * props.dataSources.length;
+      // Ensure re-computation when any item reports a new measured size.
+      sizeVersionRef.value;
+      if (!virtual) {
+        return 0;
       }
-      return virtual.getTotalSize();
+      var totalCount = props.dataSources.length;
+      var measuredCount = virtual.sizes.size;
+      var measuredTotal = virtual.getTotalSize();
+      var remainCount = Math.max(totalCount - measuredCount, 0);
+
+      // Total length = measured sum + estimated sum of unmeasured items.
+      return measuredTotal + remainCount * virtual.getEstimateSize();
     });
     var getUniqueIdFromDataSources = function getUniqueIdFromDataSources() {
       var dataKey = props.dataKey;
       return props.dataSources.map(function (dataSource) {
         return typeof dataKey === 'function' ? dataKey(dataSource) : dataSource[dataKey];
       });
+    };
+    var getPresetSizeFromDataSource = function getPresetSizeFromDataSource(dataSource, index) {
+      var sizeKey = props.sizeKey;
+      if (!sizeKey) {
+        return null;
+      }
+      var size = typeof sizeKey === 'function' ? sizeKey(dataSource, index) : dataSource[sizeKey];
+      return typeof size === 'number' && size >= 0 ? size : null;
+    };
+    var syncPresetItemSizes = function syncPresetItemSizes() {
+      var dataKey = props.dataKey,
+        dataSources = props.dataSources,
+        sizeKey = props.sizeKey;
+      if (!sizeKey || !virtual) {
+        return;
+      }
+      dataSources.forEach(function (dataSource, index) {
+        var uniqueKey = typeof dataKey === 'function' ? dataKey(dataSource) : dataSource[dataKey];
+        var presetSize = getPresetSizeFromDataSource(dataSource, index);
+        if ((typeof uniqueKey === 'string' || typeof uniqueKey === 'number') && presetSize !== null) {
+          virtual.saveSize(uniqueKey, presetSize);
+        }
+      });
+      virtual.handleDataSourcesChange();
+      sizeVersionRef.value += 1;
     };
     var installVirtual = function installVirtual() {
       virtual = new Virtual({
@@ -1198,6 +1235,7 @@ var VirtualList = defineComponent({
       });
       // sync initial range
       rangeRef.value = virtual.getRange();
+      syncPresetItemSizes();
     };
     installVirtual();
 
@@ -1312,6 +1350,9 @@ var VirtualList = defineComponent({
     // event called when each item mounted or size changed
     var onItemResized = function onItemResized(id, size) {
       virtual.saveSize(id, size);
+      // Keep padFront/padBehind synchronized with latest measured sizes.
+      virtual.handleDataSourcesChange();
+      sizeVersionRef.value += 1;
       emit(RESIZED_EVENT, id, size);
     };
 
@@ -1372,6 +1413,7 @@ var VirtualList = defineComponent({
         for (var index = start; index <= end; index++) {
           var dataSource = dataSources[index];
           if (dataSource) {
+            var resolvedItemStyle = typeof itemStyle === 'function' ? itemStyle(index, dataSource) : itemStyle;
             var uniqueKey = typeof dataKey === 'function' ? dataKey(dataSource) : dataSource[dataKey];
             if (typeof uniqueKey === 'string' || typeof uniqueKey === 'number') {
               var tempNode = createVNode(VirtualListItem, {
@@ -1385,7 +1427,7 @@ var VirtualList = defineComponent({
                 extraProps: extraProps,
                 slotComponent: slotComponent,
                 scopedSlots: itemScopedSlots,
-                style: itemStyle,
+                style: resolvedItemStyle,
                 onItemResized: onItemResized,
                 "class": "list-item-dynamic ".concat(itemClass, " ").concat(itemClassAdd ? " ".concat(itemClassAdd(index)) : '')
               });
@@ -1405,6 +1447,7 @@ var VirtualList = defineComponent({
     watch(function () {
       return props.dataSources;
     }, function () {
+      syncPresetItemSizes();
       virtual.updateParam('uniqueIds', getUniqueIdFromDataSources());
       virtual.handleDataSourcesChange();
     }, {
@@ -1425,6 +1468,12 @@ var VirtualList = defineComponent({
       return props.offset;
     }, function (newValue) {
       scrollToOffset(newValue);
+    });
+    watch(function () {
+      return props.direction;
+    }, function () {
+      reset();
+      sizeVersionRef.value += 1;
     });
 
     // set back offset when awake from keep-alive
@@ -1512,10 +1561,12 @@ var VirtualList = defineComponent({
     // root style
     var rootStyle = isHorizontal ? {
       position: 'relative',
-      width: "".concat(fullHeight, "px")
+      width: "".concat(fullHeight, "px"),
+      height: '100%'
     } : {
       position: 'relative',
-      height: "".concat(fullHeight, "px")
+      height: "".concat(fullHeight, "px"),
+      width: '100%'
     };
     return h('div', {
       "class": containerClass,

@@ -1,8 +1,27 @@
 <template>
   <div class="container">
-    <button @click="addItem">添加</button>
+    <div class="toolbar">
+      <div class="tabs">
+        <button
+          :class="['tab-btn', { active: activeTab === 'vertical' }]"
+          @click="activeTab = 'vertical'"
+        >
+          竖向示例
+        </button>
+        <button
+          :class="['tab-btn', { active: activeTab === 'horizontal' }]"
+          @click="activeTab = 'horizontal'"
+        >
+          横向示例
+        </button>
+      </div>
+      <button @click="addItem">添加</button>
+    </div>
+
     <VirtualList
-      ref="virtualList"
+      v-if="activeTab === 'vertical'"
+      key="vertical-list"
+      ref="verticalList"
       :data-key="'id'"
       :data-sources="items"
       :estimate-size="73"
@@ -20,12 +39,36 @@
         </div>
       </template>
     </VirtualList>
+
+    <VirtualList
+      v-else
+      key="horizontal-list"
+      ref="horizontalList"
+      :data-key="'id'"
+      :data-sources="items"
+      :estimate-size="230"
+      :size-key="'size'"
+      direction="horizontal"
+      containerClass="list-horizontal"
+      wrapClass="wrapper"
+      itemClass="list-item-horizontal"
+      :item-style="getHorizontalItemStyle"
+    >
+      <template #="{ source }">
+        <div class="item-inner-horizontal">
+          <div class="index">#{{ source.index }}</div>
+          <div>{{ source.name }}</div>
+          <div class="size">宽度基准: {{ source.size }}px</div>
+        </div>
+      </template>
+    </VirtualList>
   </div>
 </template>
 <script>
 import { ref } from 'vue';
 export default {
   setup() {
+    const activeTab = ref('vertical');
     const genUniqueId = (prefix) => {
       return `${prefix}$${Math.random().toString(16).substr(9)}`;
     };
@@ -43,7 +86,7 @@ export default {
     };
     const sizes = [60, 80, 100, 150, 180, 500];
     const items = ref([]);
-    const TOTAL_COUNT = 30;
+    const TOTAL_COUNT = 300;
     let count = TOTAL_COUNT;
     while (count--) {
       const index = TOTAL_COUNT - count;
@@ -68,8 +111,15 @@ export default {
       console.log(currentItems);
       items.value = currentItems;
     };
+
+    const getHorizontalItemStyle = (index, item) => ({
+      width: `${item.size}px`,
+    });
+
     return {
+      activeTab,
       addItem,
+      getHorizontalItemStyle,
       items,
     };
   },
@@ -80,6 +130,32 @@ export default {
   border: 1px solid #eee;
   margin-top: 20px;
   width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+.tab-btn {
+  border: 1px solid #cfd7e6;
+  background: #f7faff;
+  color: #334155;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.tab-btn.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
 }
 .list-dynamic {
   width: 100%;
@@ -112,12 +188,12 @@ export default {
   width: 100%;
   height: 300px;
   overflow-x: auto;
-  display: flex;
   .wrapper {
     display: flex;
     flex-direction: row;
   }
   .list-item-horizontal {
+    flex: 0 0 auto;
     border-right: 2px solid rgb(255, 255, 255);
     background: rgba(83, 132, 255, 0.06) none repeat scroll 0% 0%;
   }
@@ -127,6 +203,7 @@ export default {
   align-items: center;
   flex-direction: column;
   padding: 2em 0;
+  box-sizing: border-box;
   .index {
     width: 100%;
     text-align: center;

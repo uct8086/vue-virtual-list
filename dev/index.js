@@ -1,5 +1,5 @@
  
-import { ref, watch, onBeforeUnmount, defineComponent, h, createVNode, computed, onActivated, onDeactivated, onMounted } from 'vue';
+import { watch, onBeforeUnmount, unref, defineComponent, h, createVNode, ref, computed, onActivated, onDeactivated, onMounted } from 'vue';
 
 function _arrayLikeToArray(r, a) {
   (null == a || a > r.length) && (a = r.length);
@@ -15,20 +15,20 @@ function _classCallCheck(a, n) {
 function _defineProperties(e, r) {
   for (var t = 0; t < r.length; t++) {
     var o = r[t];
-    o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o);
+    o.enumerable = o.enumerable || false, o.configurable = true, "value" in o && (o.writable = true), Object.defineProperty(e, _toPropertyKey(o.key), o);
   }
 }
 function _createClass(e, r, t) {
   return r && _defineProperties(e.prototype, r), Object.defineProperty(e, "prototype", {
-    writable: !1
+    writable: false
   }), e;
 }
 function _defineProperty(e, r, t) {
   return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
     value: t,
-    enumerable: !0,
-    configurable: !0,
-    writable: !0
+    enumerable: true,
+    configurable: true,
+    writable: true
   }) : e[r] = t, e;
 }
 function _iterableToArray(r) {
@@ -50,7 +50,7 @@ function ownKeys(e, r) {
 function _objectSpread2(e) {
   for (var r = 1; r < arguments.length; r++) {
     var t = null != arguments[r] ? arguments[r] : {};
-    r % 2 ? ownKeys(Object(t), !0).forEach(function (r) {
+    r % 2 ? ownKeys(Object(t), true).forEach(function (r) {
       _defineProperty(e, r, t[r]);
     }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) {
       Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
@@ -65,7 +65,7 @@ function _toPrimitive(t, r) {
   if ("object" != typeof t || !t) return t;
   var e = t[Symbol.toPrimitive];
   if (void 0 !== e) {
-    var i = e.call(t, r || "default");
+    var i = e.call(t, r);
     if ("object" != typeof i) return i;
     throw new TypeError("@@toPrimitive must return a primitive value.");
   }
@@ -923,9 +923,8 @@ var ResizeObserver = (function () {
 }());
 
 var useResize = (function (triggerRef, callback, disabledRef) {
-  var _disabledRef = ref(disabledRef);
   var handleResize = function handleResize() {
-    if (_disabledRef.value) {
+    if (unref(disabledRef)) {
       return;
     }
     callback && callback();
@@ -1122,7 +1121,7 @@ var VirtualListItem = defineComponent({
     });
     return h(tag, {
       key: uniqueKey,
-      role: 'listItem',
+      role: 'listitem',
       ref: function ref(el) {
         if (el) _this.itemRef = el;
       }
@@ -1139,7 +1138,7 @@ var VirtualListItem = defineComponent({
  * virtual list default component
  * rewrite by uct8086
  */
-
+/*global document:readonly, console:readonly*/
 var TO_TOP_EVENT = 'totop';
 var TO_BOTTOM_EVENT = 'tobottom';
 var RESIZED_EVENT = 'resized';
@@ -1157,16 +1156,30 @@ var VirtualList = defineComponent({
       slots = _ref.slots;
     var isHorizontal = props.direction === 'horizontal';
     var directionKey = isHorizontal ? 'scrollLeft' : 'scrollTop';
+    var hasHeaderSlot = typeof slots.header === 'function';
+    var hasFooterSlot = typeof slots.footer === 'function';
     var rootRef = ref();
     var shepherdRef = ref();
     var rangeRef = ref(Object.create(null));
+    var sizeVersionRef = ref(0);
+    var pageModeScrollOptions = {
+      passive: true
+    };
+    var pageModeListening = false;
     var virtual = null;
     var fullHeight = computed(function () {
-      var padBehind = rangeRef.value.padBehind;
-      if (padBehind !== 0) {
-        return virtual && virtual.getEstimateSize() * props.dataSources.length;
+      // Ensure re-computation when any item reports a new measured size.
+      sizeVersionRef.value;
+      if (!virtual) {
+        return 0;
       }
-      return virtual.getTotalSize();
+      var totalCount = props.dataSources.length;
+      var measuredCount = virtual.sizes.size;
+      var measuredTotal = virtual.getTotalSize();
+      var remainCount = Math.max(totalCount - measuredCount, 0);
+
+      // Total length = measured sum + estimated sum of unmeasured items.
+      return measuredTotal + remainCount * virtual.getEstimateSize();
     });
     var getUniqueIdFromDataSources = function getUniqueIdFromDataSources() {
       var dataKey = props.dataKey;
@@ -1204,7 +1217,7 @@ var VirtualList = defineComponent({
     // return current scroll offset
     var getOffset = function getOffset() {
       if (props.pageMode) {
-        return document.documentElement[directionKey] || document.body[directionKey];
+        return document.documentElement[directionKey] || document.body[directionKey] || 0;
       } else {
         var root = rootRef.value;
         return root ? Math.ceil(root[directionKey]) : 0;
@@ -1215,7 +1228,7 @@ var VirtualList = defineComponent({
     var getClientSize = function getClientSize() {
       var key = isHorizontal ? 'clientWidth' : 'clientHeight';
       if (props.pageMode) {
-        return document.documentElement[key] || document.body[key];
+        return document.documentElement[key] || document.body[key] || 0;
       } else {
         var root = rootRef.value;
         return root ? Math.ceil(root[key]) : 0;
@@ -1226,7 +1239,7 @@ var VirtualList = defineComponent({
     var getScrollSize = function getScrollSize() {
       var key = isHorizontal ? 'scrollWidth' : 'scrollHeight';
       if (props.pageMode) {
-        return document.documentElement[key] || document.body[key];
+        return document.documentElement[key] || document.body[key] || 0;
       } else {
         var root = rootRef.value;
         return root ? Math.ceil(root[key]) : 0;
@@ -1241,7 +1254,7 @@ var VirtualList = defineComponent({
       } else {
         var root = rootRef.value;
         if (root) {
-          isHorizontal ? root.scrollBy(offset, 0) : root.scrollTo(0, offset); // 解决设置OffsetTop无效的问题
+          isHorizontal ? root.scrollTo(offset, 0) : root.scrollTo(0, offset); // 解决设置OffsetTop无效的问题
         }
       }
     };
@@ -1273,9 +1286,22 @@ var VirtualList = defineComponent({
       if (root) {
         var rect = root.getBoundingClientRect();
         var defaultView = root.ownerDocument.defaultView;
-        var offsetFront = isHorizontal ? rect.left + defaultView.pageXOffset : rect.top + defaultView.pageYOffset;
+        var pageXOffset = defaultView ? defaultView.pageXOffset : 0;
+        var pageYOffset = defaultView ? defaultView.pageYOffset : 0;
+        var offsetFront = isHorizontal ? rect.left + pageXOffset : rect.top + pageYOffset;
         virtual.updateParam('slotHeaderSize', offsetFront);
-        console.log('virtual:', virtual.param);
+      }
+    };
+    var bindPageModeScroll = function bindPageModeScroll() {
+      if (!pageModeListening) {
+        document.addEventListener('scroll', onScroll, pageModeScrollOptions);
+        pageModeListening = true;
+      }
+    };
+    var unbindPageModeScroll = function unbindPageModeScroll() {
+      if (pageModeListening) {
+        document.removeEventListener('scroll', onScroll);
+        pageModeListening = false;
       }
     };
 
@@ -1289,12 +1315,13 @@ var VirtualList = defineComponent({
     // event called when each item mounted or size changed
     var onItemResized = function onItemResized(id, size) {
       virtual.saveSize(id, size);
+      sizeVersionRef.value += 1;
       emit(RESIZED_EVENT, id, size);
     };
 
     // event called when slot mounted or size changed
     var onSlotResized = function onSlotResized(type, size, hasInit) {
-      if (slots.header() || slots.footer()) {
+      if (hasHeaderSlot || hasFooterSlot) {
         if (type === SLOT_TYPE.HEADER) {
           virtual.updateParam('slotHeaderSize', size);
         } else if (type === SLOT_TYPE.FOOTER) {
@@ -1408,14 +1435,12 @@ var VirtualList = defineComponent({
     onActivated(function () {
       scrollToOffset(virtual.offset);
       if (props.pageMode) {
-        document.addEventListener('scroll', onScroll, {
-          passive: false
-        });
+        bindPageModeScroll();
       }
     });
     onDeactivated(function () {
       if (props.pageMode) {
-        document.removeEventListener('scroll', onScroll);
+        unbindPageModeScroll();
       }
     });
     onMounted(function () {
@@ -1428,14 +1453,12 @@ var VirtualList = defineComponent({
       // in page mode we bind scroll event to document
       if (props.pageMode) {
         updatePageModeFront();
-        document.addEventListener('scroll', onScroll, {
-          passive: false
-        });
+        bindPageModeScroll();
       }
     });
     onBeforeUnmount(function () {
       if (props.pageMode) {
-        document.removeEventListener('scroll', onScroll);
+        unbindPageModeScroll();
       }
     });
     return {

@@ -41,20 +41,27 @@ export default defineComponent({
         const rootRef = ref();
         const shepherdRef = ref();
         const rangeRef = ref(Object.create(null));
+        const sizeVersionRef = ref(0);
         const pageModeScrollOptions = { passive: true };
         let pageModeListening = false;
 
         let virtual = null;
 
         const fullHeight = computed(() => {
-            const { padBehind } = rangeRef.value;
-            if (padBehind !== 0) {
-                return (
-                    virtual &&
-                    virtual.getEstimateSize() * props.dataSources.length
-                );
+            // Ensure re-computation when any item reports a new measured size.
+            sizeVersionRef.value;
+
+            if (!virtual) {
+                return 0;
             }
-            return virtual.getTotalSize();
+
+            const totalCount = props.dataSources.length;
+            const measuredCount = virtual.sizes.size;
+            const measuredTotal = virtual.getTotalSize();
+            const remainCount = Math.max(totalCount - measuredCount, 0);
+
+            // Total length = measured sum + estimated sum of unmeasured items.
+            return measuredTotal + remainCount * virtual.getEstimateSize();
         });
 
         const getUniqueIdFromDataSources = () => {
@@ -64,6 +71,39 @@ export default defineComponent({
                     ? dataKey(dataSource)
                     : dataSource[dataKey],
             );
+        };
+
+        const getPresetSizeFromDataSource = (dataSource, index) => {
+            const { sizeKey } = props;
+            if (!sizeKey) {
+                return null;
+            }
+
+            const size = typeof sizeKey === 'function'
+                ? sizeKey(dataSource, index)
+                : dataSource[sizeKey];
+
+            return typeof size === 'number' && size >= 0 ? size : null;
+        };
+
+        const syncPresetItemSizes = () => {
+            const { dataKey, dataSources, sizeKey } = props;
+            if (!sizeKey || !virtual) {
+                return;
+            }
+
+            dataSources.forEach((dataSource, index) => {
+                const uniqueKey = typeof dataKey === 'function'
+                    ? dataKey(dataSource)
+                    : dataSource[dataKey];
+                const presetSize = getPresetSizeFromDataSource(dataSource, index);
+                if ((typeof uniqueKey === 'string' || typeof uniqueKey === 'number') && presetSize !== null) {
+                    virtual.saveSize(uniqueKey, presetSize);
+                }
+            });
+
+            virtual.handleDataSourcesChange();
+            sizeVersionRef.value += 1;
         };
 
         const installVirtual = () => {
@@ -82,6 +122,7 @@ export default defineComponent({
             );
             // sync initial range
             rangeRef.value = virtual.getRange();
+            syncPresetItemSizes();
         };
 
         installVirtual();
@@ -201,6 +242,9 @@ export default defineComponent({
         // event called when each item mounted or size changed
         const onItemResized = (id, size) => {
             virtual.saveSize(id, size);
+            // Keep padFront/padBehind synchronized with latest measured sizes.
+            virtual.handleDataSourcesChange();
+            sizeVersionRef.value += 1;
             emit(RESIZED_EVENT, id, size);
         };
 
@@ -276,6 +320,10 @@ export default defineComponent({
                 for (let index = start; index <= end; index++) {
                     const dataSource = dataSources[index];
                     if (dataSource) {
+                        const resolvedItemStyle =
+                            typeof itemStyle === 'function'
+                                ? itemStyle(index, dataSource)
+                                : itemStyle;
                         const uniqueKey =
                             typeof dataKey === 'function'
                                 ? dataKey(dataSource)
@@ -294,7 +342,7 @@ export default defineComponent({
                                 extraProps,
                                 slotComponent,
                                 scopedSlots: itemScopedSlots,
-                                style: itemStyle,
+                                style: resolvedItemStyle,
                                 onItemResized,
                                 class: `list-item-dynamic ${itemClass} ${
                                     itemClassAdd
@@ -323,6 +371,7 @@ export default defineComponent({
         watch(
             () => props.dataSources,
             () => {
+                syncPresetItemSizes();
                 virtual.updateParam('uniqueIds', getUniqueIdFromDataSources());
                 virtual.handleDataSourcesChange();
             },
@@ -350,6 +399,14 @@ export default defineComponent({
             () => props.offset,
             (newValue) => {
                 scrollToOffset(newValue);
+            },
+        );
+
+        watch(
+            () => props.direction,
+            () => {
+                reset();
+                sizeVersionRef.value += 1;
             },
         );
 
@@ -442,8 +499,8 @@ export default defineComponent({
             : extraStyle;
         // root style
         const rootStyle = isHorizontal
-            ? { position: 'relative', width: `${fullHeight}px` }
-            : { position: 'relative', height: `${fullHeight}px` };
+            ? { position: 'relative', width: `${fullHeight}px`, height: '100%' }
+            : { position: 'relative', height: `${fullHeight}px`, width: '100%' };
 
         return h(
             'div', {
